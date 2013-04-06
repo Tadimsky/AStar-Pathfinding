@@ -1,31 +1,59 @@
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 
 public class Map {
-    
-   private static final int[][] mapLayout = {
-                                             {0,0,0,0,0,0,0,0},
-                                             {0,1,1,1,1,0,1,1},
-                                             {0,0,1,0,0,0,0,0},
-                                             {0,0,0,1,0,1,1,1},
-                                             {0,0,0,1,0,0,0,0},
-                                             {1,1,0,1,0,0,0,0},
-                                             {0,1,0,0,1,0,0,0},
-                                             {0,0,0,0,1,0,0,0}                                             
-                                             };
+private int[][] mapLayout; 
+   /*
+   = {
+      {0,0,0,0,0,0,0,0},
+      {0,1,1,1,1,0,1,1},
+      {0,0,1,0,0,0,0,0},
+      {0,0,0,1,0,1,1,1},
+      {0,0,0,1,0,0,0,0},
+      {1,1,0,1,0,0,0,0},
+      {0,1,0,0,1,0,0,0},
+      {0,0,0,0,1,0,0,0}                                             
+      };
+      */
     
    private Node[][] map;
    private int width;
    private int height;
    
-    public Map () {
-        width = mapLayout[0].length;
-        height = mapLayout.length;
+   
+       
+   
+    public Map (int w, int h, int prob) {
+        
+        width = w;
+        height = h;
+        
+        ranGen(width, height, prob);
         map = new Node[width][height];
-        for (int row = 0; row < width; row++) {
-            for (int col = 0; col < height; col++) {
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
                 map[row][col] = new Node(col, row, mapLayout[row][col]); 
+            }
+        }
+    }
+    
+    
+    private void ranGen(int width, int height, int prob) {
+        Random r = new Random();
+        mapLayout = new int[width][height];
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                if (r.nextInt(100) < prob) {
+                    mapLayout[row][col] = 1;
+                }
+                else
+                { 
+                    mapLayout[row][col] = 0; 
+                }
             }
         }
     }
@@ -35,8 +63,8 @@ public class Map {
     }
     
     public void print(List<Node> path) {        
-        for (int row = 0; row < width; row++) {
-            for (int col = 0; col < height; col++) {
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
                 if (path.contains(map[row][col])) {
                     System.out.print("X ");
                 }
@@ -72,6 +100,39 @@ public class Map {
         return lists;
     }
     
+    public int getWidth() {
+        return width;
+    }
     
+    public int getHeight() {
+        return height;
+    }
+    
+    
+    public void paint(Graphics2D pen, List<Node> path, AI ai) {
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                Node f = map[row][col];                
+                if (path.contains(map[row][col])) {
+                    f.paint(pen,Color.blue);                    
+                }
+                else
+                {
+                    ai.paint(pen, f);
+                    
+                    /*
+                    if (f.getValue() == 0) {
+                        f.paint(pen,Color.WHITE);
+                    }
+                    else {
+                        f.paint(pen,Color.black); 
+                    } 
+                    */                   
+                }
+            }            
+        }
+        path.get(0).paint(pen, Color.GREEN);
+        path.get(path.size() - 1).paint(pen, Color.RED);
+    }    
 
 }

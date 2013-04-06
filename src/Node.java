@@ -1,7 +1,14 @@
+import java.awt.Color;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
+
 
 public class Node {
 
-    public static int SIZE = 10;
+    public static int SIZE = 4;
     
     private int myValue;
     private int X;
@@ -67,5 +74,12 @@ public class Node {
     @Override
     public String toString () {
         return "Node [X=" + X + ", Y=" + Y + "]";
+    }
+    
+    public void paint(Graphics2D pen, Color c) {
+        pen.setColor(c);
+        pen.setPaint(c);
+        Rectangle2D lol = new Rectangle2D.Double(getX() * Node.SIZE, getY()* Node.SIZE, Node.SIZE, Node.SIZE);
+        pen.fill(lol);
     }
 }
