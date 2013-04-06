@@ -30,13 +30,13 @@ public class AI {
         HashMap<Node, Node> comesFrom = new HashMap<Node, Node>(); 
         
         // Distant from start
-        HashMap<Node, Integer> g_score = new HashMap<Node, Integer>();
+        HashMap<Node, Double> g_score = new HashMap<Node, Double>();
         
         // Distant to goal
-        HashMap<Node, Integer> f_score = new HashMap<Node, Integer>();
+        HashMap<Node, Double> f_score = new HashMap<Node, Double>();
         
         // distance from start to start is zero
-        g_score.put(start, 0);        
+        g_score.put(start, 0.0);        
         f_score.put(start, heuristic(start, goal));
         
         while (openSet.size() != 0) {
@@ -56,7 +56,7 @@ public class AI {
                 if (neighbor == null) { 
                     continue;
                 }
-                int tentative_g_score = g_score.get(current) + Node.SIZE;
+                double tentative_g_score = g_score.get(current) + Node.SIZE;
                 if (closedSet.contains(neighbor)) {
                     if (tentative_g_score >= g_score.get(neighbor)) {
                         continue;
@@ -78,27 +78,28 @@ public class AI {
     
     
 
-    private static int heuristic(Node start, Node goal) {
+    private static double heuristic(Node start, Node goal) {
         if (start.getValue() > 0) { return 1000000; }
         // basic guess between current and the goal
         int dx = goal.getX() - start.getX();
         int dy = goal.getY() - start.getY();
-        return (int)(Math.floor(Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2))));        
+        return Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));        
     }
     
-    private static Node getLowest(HashMap<Node, Integer> map, List<Node> fromSet) {
+    private static Node getLowest(HashMap<Node, Double> f_score, List<Node> fromSet) {
         Iterator<Node> i = fromSet.iterator();
-        int minValue = Integer.MAX_VALUE;
+        double minValue = Double.MAX_VALUE;
         Node minNode = null;
         
         while (i.hasNext())
         {            
             Node cur = i.next();
-            int val = map.get(cur);
+            double val = f_score.get(cur);
             
             if (val < minValue) {
                 if (cur.getValue() == 0) {
                     minNode = cur;
+                    minValue = val;
                 }
             }
         }
