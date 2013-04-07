@@ -48,11 +48,11 @@ private int[][] mapLayout;
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 if (r.nextInt(100) < prob) {
-                    mapLayout[row][col] = 1;
+                    mapLayout[row][col] = 5;
                 }
                 else
                 { 
-                    mapLayout[row][col] = 0; 
+                    mapLayout[row][col] = 1; 
                 }
             }
         }
@@ -119,15 +119,6 @@ private int[][] mapLayout;
                 else
                 {
                     ai.paint(pen, f);
-                    
-                    /*
-                    if (f.getValue() == 0) {
-                        f.paint(pen,Color.WHITE);
-                    }
-                    else {
-                        f.paint(pen,Color.black); 
-                    } 
-                    */                   
                 }
             }            
         }

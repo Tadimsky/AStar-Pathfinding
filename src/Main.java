@@ -20,12 +20,14 @@ public class Main extends JPanel {
     private List<Node> path;
     private List<Node> currentpath;
     
+    Timer loop; 
+    
     private AI ai;
     public Main() {
         
         currentpath = new ArrayList<Node>();
         
-        m = new Map(width, height, 30);
+        m = new Map(width, height, 10);
         ai = new AI();
                 
         Random r = new Random();
@@ -35,17 +37,21 @@ public class Main extends JPanel {
             int Xg = width - r.nextInt(width / area);
             int Yg = height - r.nextInt(height / area);
             System.out.println(String.format("Finding path for (%d,%d), (%d,%d): ", Xs,Ys,Xg,Yg));
+            
+            long start = System.currentTimeMillis();
             path = ai.findpath(m,Xs, Ys, Xg, Yg);
+            start = System.currentTimeMillis() - start;
             if (path == null) {
-                System.out.println(String.format("Failure"));
+                System.out.println(String.format("No path exists"));
             }
             else
             {
                 System.out.println(String.format("Success!"));
             }
+            System.out.println("Time: " + start);
         }
         while (path == null);
-        Timer loop = new Timer();
+        loop = new Timer();
         loop.schedule(new TimerTask() {            
             @Override
             public void run () {
@@ -74,14 +80,16 @@ public class Main extends JPanel {
             if (path.size() > 0) {
                 currentpath.add(path.remove(0));
             }
+            else
+            {
+                //loop.cancel();
+            }
         }
     }
     
-    public void paint(Graphics g) {
+    public void paint(Graphics g) {        
         if (currentpath != null) {
-          m.paint((Graphics2D)g, currentpath, ai);
-        }        
-        // g.fillRect (5, 15, 50, 75);
+            m.paint((Graphics2D)g, currentpath, ai);
+        }   
     }
-
 }

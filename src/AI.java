@@ -48,19 +48,33 @@ public class AI {
         g_score.put(start, 0.0);        
         f_score.put(start, heuristic(start, goal));
         
+        int countLoop = 0;
+        
         while (openSet.size() != 0) {
             // get lowest fscore
+            countLoop++;
             Node current = getLowest(f_score, openSet);
             if (current == null) { return null; }
-            if (current.getValue() > 0) {
-                //openSet.remove(current);                
-                //continue;
+            if (current.getValue() > 1) {
+                System.out.println("Why you here?");
+                openSet.remove(current);                
+                continue;
             }
             if (current.equals(goal)) {
+                System.out.println("\t Calculating Max");
+                TimeIt time = new TimeIt();
                 Fmax = getMin(f_score);
                 Gmax = getMin(g_score);
-                return construct_path(comesFrom, goal);
+                time.printTime();
+                
+                System.out.println("\t Generating Path");
+                time = new TimeIt();
+                List<Node> v = construct_path(comesFrom, goal);
+                time.printTime();
+                System.out.println(countLoop);
+                return v;
             }
+            
             openSet.remove(current);
             closedSet.add(current);            
             List<Node> neighbors = map.getNeighbors(current);
@@ -79,7 +93,9 @@ public class AI {
                     g_score.put(neighbor, tentative_g_score);
                     f_score.put(neighbor, g_score.get(neighbor) + heuristic(neighbor, goal));
                     if (!openSet.contains(neighbor)) {
-                        openSet.add(neighbor);
+                        if (!(neighbor.getValue() > 1)) {
+                            openSet.add(neighbor);
+                        }
                     }
                 }
             }
@@ -88,46 +104,64 @@ public class AI {
         return null;        
     }
     
-    private double getMin(HashMap<Node, Double> f) {
-    
+    private double getMin(HashMap<Node, Double> f) {    
         double max = Collections.max(f.values(), new Comparator<Double>(){
-    
             @Override
             public int compare (Double o1, Double o2) {
-                if (o1 > 1000000 || o2 > 1000000) {
-                    return 0;
+                if (o1 > 1000000) {
+                    return -1;
+                }
+                if (o2 > 1000000) {
+                    return 1;
                 }
                 return o1.compareTo(o2);
             }            
         });
+        //System.out.println(max);
         return max;
     }
     
     
     public void paint(Graphics2D pen, Node n) {
-        int fblue = 0;
         
-        Double val = f_score.get(n);
-        if (val == null) { val = 0.0; }
-        if (val > Fmax) { val = Fmax; fblue = 255; }
+        if (n.getValue() > 1) {
+            n.paint(pen, new Color(0, 0, 0));
+            return;
+        }
+        
+        Double val = g_score.get(n);        
+        if (val == null) { val = 0.0; }        
+        double green = val / Gmax;        
+        green = (green * 255);
+        
+        val = f_score.get(n);        
+        if (val == null) { val = 0.0; }        
+        if (val > Fmax) { val = Fmax; }
         double red = val / Fmax;        
         red = (red * 255);
         
-        val = g_score.get(n);
-        if (val == null) { val = 0.0; }
-        if (val > Gmax) { val = Gmax;}
-        double green = val / Gmax;        
-        green = (green * 255);       
-        
-        n.paint(pen, new Color((int)red, (int)green, fblue));
+        n.paint(pen, new Color((int)red, (int)green, 0));
     }
     
     private double heuristic(Node start, Node goal) {
-        if (start.getValue() > 0) { return 1000000; }
+        if (start == null || goal == null) return 100000;
+        if (start.getValue() > 1) { return 1000000; }
+        return manhattan(start, goal);
+        /return euclidean(start, goal);
+    }
+    
+    private double euclidean(Node start, Node goal) {
+        
         // basic guess between current and the goal
-        int dx = goal.getX() - start.getX();
-        int dy = goal.getY() - start.getY();
-        return Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));        
+        int dx = Node.SIZE * (goal.getX() - start.getX());
+        int dy = Node.SIZE * (goal.getY() - start.getY());
+        return Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));   
+    }
+    
+    private double manhattan(Node start, Node goal) {
+        int dx = Math.abs(goal.getX() - start.getX());
+        int dy = Math.abs(goal.getY() - start.getY());
+        return Node.SIZE * (dx + dy);
     }
     
     private Node getLowest(HashMap<Node, Double> f_score, List<Node> fromSet) {
@@ -141,18 +175,17 @@ public class AI {
             double val = f_score.get(cur);
             
             if (val < minValue) {
-                if (cur.getValue() == 0) {
+                if (cur.getValue() == 1) {
                     minNode = cur; 
                     minValue = val;
-                   }
+                }
             }
-        }
+        }        
         return minNode;
     }
     
     private static List<Node> construct_path (HashMap<Node, Node> comesFrom, Node goal) {
-        List<Node> path = new ArrayList<Node>();
-        
+        List<Node> path = new ArrayList<Node>();        
         if (comesFrom.containsKey(goal)) {
             path.addAll(construct_path(comesFrom, comesFrom.get(goal)));
             path.add(goal);
